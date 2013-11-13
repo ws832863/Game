@@ -6,12 +6,11 @@ import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
-
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-//import java.util.Timer;
-//import java.util.TimerTask;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Handles a client-side channel.
@@ -25,74 +24,74 @@ public class GameClientHandler extends SimpleChannelInboundHandler<String> {
 			.getLogger(GameClientHandler.class.getName());
 
 	@Override
-    public void channelActive(final ChannelHandlerContext ctx) throws Exception {
-        // Send greeting for a new connection.
-    		
-    		final ChannelFuture fst = ctx.writeAndFlush("id:" + getClientId() + "\r\n");// The id must start with id:
-        	fst.addListener(new ChannelFutureListener(){
-        		@Override
-                public void operationComplete(ChannelFuture future) {
-                    assert fst == future;
-                    
-        	        //send commands. there must be \r\n!
-        	        String input = "start/get/sell/hello/get/go/me/wll/zoo/quit/"; // start, get, sell, quit
-        	        @SuppressWarnings("resource")
-        			final Scanner s = new Scanner(input).useDelimiter("/");
-        	        String Cmsg = new String();	
-        			
-        			
-        	        while(s.hasNext()){
-        	        	
-        	        	Cmsg = s.next();
-        	        	
-        	        	ctx.writeAndFlush(getClientId() + ":" + Cmsg + "\r\n");
-        	        	
-        	        	if("quit".equals(Cmsg))
-        					break;
-        	        }
-        			s.close();
+	public void channelActive(final ChannelHandlerContext ctx) throws Exception {
+		// Send greeting for a new connection.
 
-                    
-                    
-//                    TimerTask task = new TimerTask() {
-//            			public void run() {
-//            				
-//            				
-//            				
-//            				if(s.hasNext()){
-//            					Cmsg = s.next();
-//                            	
-//                            	ctx.writeAndFlush(Cmsg+"\r\n");
-                            	
-//                            	if("quit".equals(Cmsg))
-//                    				break;
-//            				}
-//            			}
-//            		};
-                    
-            		
-//            		Timer timer = new Timer();
-//            		timer.schedule(task, 0, 2000); // send this massage after 2 seconds
-//                    
-//            		if(!s.hasNext()){
-//            			timer.cancel();
-//            			
-//            		}       		
-                    
+		final ChannelFuture fst = ctx.writeAndFlush("id:" + getClientId()
+				+ "\r\n");// The id must start with id:
+		fst.addListener(new ChannelFutureListener() {
+
+			private String cmsg;
+
+			@Override
+			public void operationComplete(ChannelFuture future) {
+				assert fst == future;
+
+				// send commands. there must be \r\n!
+				// start, get, sell, quit
+				String input = "start/get/sell/hello/get/go/quit/me/wll/zoo/"; 
+				@SuppressWarnings("resource")
+				final Scanner s = new Scanner(input).useDelimiter("/");
+				cmsg = new String();
+				
+				// send massages without schedule
+//    	        while(s.hasNext()){
+//    	        	
+//    	        	cmsg = s.next();
+//    	        	
+//    	        	ctx.writeAndFlush(getClientId() + ":" + cmsg + "\r\n");
+//    	        	
+//    	        	if("quit".equals(cmsg))
+//    					break;
+//    	        }
+//    			s.close();
+    			
+				
+				
+				// send massages with schedule
+				final Timer timer = new Timer();
+
+				TimerTask task = new TimerTask() {
+					public void run() {
+
+						if (s.hasNext()) {
+							cmsg = s.next();
+
+							ctx.writeAndFlush(getClientId() + ":" + cmsg
+									+ "\r\n");
+							
+							if ("quit".equals(cmsg)) {
+								timer.cancel();
+								s.close();
+//								ctx.close();
+							}
+
+						}
+					}
+				};
 
 
-                    
-                    
-                }
-        	});
+				timer.schedule(task, 0, 2000); // send massage after 2 seconds
 
-      
-    }
+			}
+		});
+
+	}
 
 	@Override
 	protected void channelRead0(ChannelHandlerContext ctx, String msg)
 			throws Exception {
-			System.err.println(msg);
+		System.err.println(msg);
 	}
 
 	@Override
