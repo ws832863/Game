@@ -28,6 +28,7 @@ public class RequestSorter {
 						case "get":
 						case "sell":
 						case "quit":
+							//even you create many instance of ValidRequestHandler, but they all share the static client id
 							ValidRequestHandler vReq = new ValidRequestHandler();
 							vReq.setClientId(clientId);
 							vReq.run(req.toLowerCase());
