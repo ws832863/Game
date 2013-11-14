@@ -39,7 +39,7 @@ public class GameClientHandler extends SimpleChannelInboundHandler<String> {
 
 				// send commands. there must be \r\n!
 				// start, get, sell, quit
-				String input = "start/get/sell/hello/get/go/quit/me/wll/zoo/"; 
+				String input = "start/get/sell/hello/get/go/me/wll/zoo/"; // input "quit/" to stop.
 				@SuppressWarnings("resource")
 				final Scanner s = new Scanner(input).useDelimiter("/");
 				cmsg = new String();
@@ -73,7 +73,7 @@ public class GameClientHandler extends SimpleChannelInboundHandler<String> {
 							if ("quit".equals(cmsg)) {
 								timer.cancel();
 								s.close();
-//								ctx.close();
+								ctx.close();
 							}
 
 						}

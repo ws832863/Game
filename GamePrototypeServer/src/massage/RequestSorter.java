@@ -22,17 +22,24 @@ public class RequestSorter {
 					String clientId = splitResult[0];
 
 					if (checkClientId(clientId)) {
+						
 						String req = splitResult[1];
-						switch (req.toLowerCase()) {
-						case "start":
-						case "get":
-						case "sell":
-						case "quit":
-							ValidRequestHandler vReq = new ValidRequestHandler();
-							vReq.setClientId(clientId);
-							vReq.run(req.toLowerCase());
-							return "OK";
-						default:
+						ValidRequestHandler vReq = new ValidRequestHandler();
+						vReq.setClientId(clientId);
+						
+						if (vReq.run(req.toLowerCase())){
+							switch (req.toLowerCase()) {
+							case "start":
+							case "get":
+							case "sell":
+								return "OK";
+							case "quit":
+								return "quit";
+							default:
+								System.err.println(req.toLowerCase());
+								return "InvReq";
+							}
+						}else{
 							System.err.println(req.toLowerCase());
 							return "InvReq";
 						}
@@ -83,6 +90,9 @@ public class RequestSorter {
 			break;
 		case "OK":
 			response = "Yes, sir! \r\n";
+			break;
+		case "quit":
+			response = "Have a good day! \r\n";
 			break;
 		default:
 			response = "";
