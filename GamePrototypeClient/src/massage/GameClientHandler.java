@@ -39,7 +39,7 @@ public class GameClientHandler extends SimpleChannelInboundHandler<String> {
 
 				// send commands. there must be \r\n!
 				// start, get, sell, quit
-				String input = "start/get/sell/hello/get/go/me/wll/zoo/"; // input "quit/" to stop.
+				String input = "start/get/sell/get/quit/"; // input "quit/" to stop.
 				@SuppressWarnings("resource")
 				final Scanner s = new Scanner(input).useDelimiter("/");
 				cmsg = new String();
@@ -66,14 +66,15 @@ public class GameClientHandler extends SimpleChannelInboundHandler<String> {
 
 						if (s.hasNext()) {
 							cmsg = s.next();
-
+							//send massages to server
 							ctx.writeAndFlush(getClientId() + ":" + cmsg
 									+ "\r\n");
+//							System.out.println(getClientId() + ":" + cmsg
+//									+ "\r\n");
 							
 							if ("quit".equals(cmsg)) {
 								timer.cancel();
 								s.close();
-								ctx.close();
 							}
 
 						}
@@ -81,7 +82,9 @@ public class GameClientHandler extends SimpleChannelInboundHandler<String> {
 				};
 
 
-				timer.schedule(task, 0, 2000); // send massage after 2 seconds
+				timer.schedule(task, 0, 2000); // after 0s send massages for each 2s
+				
+				
 
 			}
 		});
@@ -92,6 +95,11 @@ public class GameClientHandler extends SimpleChannelInboundHandler<String> {
 	protected void channelRead0(ChannelHandlerContext ctx, String msg)
 			throws Exception {
 		System.err.println(msg);
+		
+		if("quit".equals(msg)){
+			ctx.close();
+			System.exit(0);
+		}
 	}
 
 	@Override
