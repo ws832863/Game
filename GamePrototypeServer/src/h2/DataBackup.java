@@ -24,6 +24,7 @@ public class DataBackup extends Thread {
 				try {
 //					hm.selectAll();
 					hm.selectMultiColumns("ID,NAME");
+					hm.selectMultiColumns("COUNT(*) COUNT");
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

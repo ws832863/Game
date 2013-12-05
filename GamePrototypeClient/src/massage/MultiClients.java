@@ -8,17 +8,19 @@ import java.io.File;
 import java.io.IOException;
 //import java.io.InputStreamReader;
 import java.io.InputStreamReader;
+import java.util.Timer;
+import java.util.TimerTask;
 
 
 public class MultiClients extends Thread {
 
 
 	
-	private static int ClientNum = 100;	// number of concurrent clients
+	private static int ClientNum = 200;	// number of concurrent clients
 	private static int ClientId = 10000; // It could be 10000, 20000, 30000... and 90000.
 	
 	private int threadNumber;
-	private static int threadCount = 0;
+	private static int threadCount = ClientId;
 	
 	public MultiClients() {
 		threadNumber = ++threadCount;
@@ -51,9 +53,27 @@ public class MultiClients extends Thread {
 		
 	}
 
+	public static int count = 0;
+	
 	public static void main(String[] args) {
-		for (int i = 0; i < ClientNum; i++)
-			new MultiClients().start();
+//		for (int i = 0; i < ClientNum; i++)
+//			new MultiClients().start();
+		
+		final Timer timer = new Timer();
+		TimerTask task = new TimerTask() {
+			public void run() {
+				if(count++ < ClientNum){
+					new MultiClients().start();
+				}else{
+					timer.cancel();
+				}
+				
+			}
+		};
+
+		timer.schedule(task, 0, 500); // after 0s send massages for
+										// each 2s
+		
 		System.out.println("All Threads Started");
 //		return;
 		

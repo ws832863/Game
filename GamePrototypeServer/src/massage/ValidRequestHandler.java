@@ -45,20 +45,20 @@ public class ValidRequestHandler {
 	}
 
 	private static boolean startGame() throws Exception {
-		ha.addSpecifiedRow(getClientId());
 //		System.out.println(getClientId() + ": OK! Let's go!\r\n");
+		ha.addSpecifiedRow(getClientId());
 		return true;
 	}
 
 	private static boolean getItem() throws Exception {
-		ha.selectOneColumn(getClientId(), "NAME");
-//		System.out.println(getClientId() + ": Here is your item!\r\n");
+		System.out.println(getClientId() + ": Here is your item: \r\n");
+		ha.selectOneColumn(getClientId(), "NAME", true);
 		return true;
 	}
 
 	private static boolean sellItem() throws Exception {
-		ha.updateColumn(getClientId(), "NAME", "AK");
 //		System.out.println(getClientId() + ": OK! I will do it!\r\n");
+		ha.updateColumn(getClientId(), "NAME", "AK");
 		return true;
 	}
 
