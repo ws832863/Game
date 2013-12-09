@@ -1,0 +1,284 @@
+[1mdiff --git a/GamePrototypeClient/src/massage/MultiClients.java b/GamePrototypeClient/src/massage/MultiClients.java[m
+[1mindex a153d51..f0e3f6d 100644[m
+[1m--- a/GamePrototypeClient/src/massage/MultiClients.java[m
+[1m+++ b/GamePrototypeClient/src/massage/MultiClients.java[m
+[36m@@ -10,16 +10,13 @@[m [mpublic class MultiClients {[m
+ [m
+ 	private final static int ClientNum = 50;[m
+ 	private static int ClientId = 10000; // It could be 10000, 20000, 30000... and 90000.[m
+[32m+[m
+ 	public static void main(String[] args) {[m
+[31m-		String path=System.getProperty("user.dir");[m
+[31m-		//if running from command line ,remove the following line[m
+[31m-		//path=path+File.separator+"bin";[m
+[31m-		System.out.println(path);[m
+ 		try {[m
+ [m
+ 			for (int i = 1; i <= ClientNum; i++) {[m
+ 			ProcessBuilder pb = new ProcessBuilder("java","massage.GameClient","localhost","8080", String.valueOf(ClientId++));[m
+[31m-			pb.directory(new File(path));[m
+[32m+[m			[32mpb.directory(new File("C:\\Users\\diao\\Desktop\\Game\\GamePrototypeClient\\bin"));[m
+ 			pb.start();          [m
+             [m
+ 			}[m
+[1mdiff --git a/GamePrototypeServer/conf/serverconfig.properties b/GamePrototypeServer/conf/serverconfig.properties[m
+[1mdeleted file mode 100644[m
+[1mindex 9311672..0000000[m
+[1m--- a/GamePrototypeServer/conf/serverconfig.properties[m
+[1m+++ /dev/null[m
+[36m@@ -1,3 +0,0 @@[m
+[31m-[m
+[31m-#prototype server port[m
+[31m-port=8080[m
+\ No newline at end of file[m
+[1mdiff --git a/GamePrototypeServer/src/de/ovgu/tools/ConfigurationReader.java b/GamePrototypeServer/src/de/ovgu/tools/ConfigurationReader.java[m
+[1mdeleted file mode 100644[m
+[1mindex e1ba5f6..0000000[m
+[1m--- a/GamePrototypeServer/src/de/ovgu/tools/ConfigurationReader.java[m
+[1m+++ /dev/null[m
+[36m@@ -1,150 +0,0 @@[m
+[31m-package de.ovgu.tools;[m
+[31m-[m
+[31m-import java.io.BufferedInputStream;[m
+[31m-import java.io.File;[m
+[31m-import java.io.FileInputStream;[m
+[31m-import java.io.IOException;[m
+[31m-import java.io.InputStream;[m
+[31m-import java.nio.file.Path;[m
+[31m-import java.util.Properties;[m
+[31m-[m
+[31m-/**[m
+[31m- * [m
+[31m- * @author shuo wang[m
+[31m- * [m
+[31m- *         this class is used to read the configuration file which located in[m
+[31m- *         the conf folder.[m
+[31m- * [m
+[31m- * [m
+[31m- */[m
+[31m-public class ConfigurationReader {[m
+[31m-[m
+[31m-	private static ConfigurationReader creader;[m
+[31m-[m
+[31m-	// define the server port[m
+[31m-	private int gameServerPort = 0;[m
+[31m-	private String gameServerIp = "";[m
+[31m-	private String clusterName = "";[m
+[31m-	private String keySpaceName = "";[m
+[31m-	private String cassandraClusterIp = "";[m
+[31m-[m
+[31m-	private ConfigurationReader() {[m
+[31m-		// better use log to output[m
+[31m-[m
+[31m-		System.out.println("read the configuration file from --"[m
+[31m-				+ this.getConfigurationPath());[m
+[31m-		// this class should not create more than one insTance. a private[m
+[31m-		// constructor can prevent us from creating a new instance[m
+[31m-		// we can use getInstance()[m
+[31m-		this.loadPropertiesFromFile();[m
+[31m-	}[m
+[31m-[m
+[31m-	/**[m
+[31m-	 * the only way to get the single instance of this class[m
+[31m-	 * [m
+[31m-	 * @return ConfigurationReader[m
+[31m-	 */[m
+[31m-	public static ConfigurationReader getInstance() {[m
+[31m-		if (creader == null) {[m
+[31m-			creader = new ConfigurationReader();[m
+[31m-		}[m
+[31m-		return creader;[m
+[31m-	}[m
+[31m-[m
+[31m-	/**[m
+[31m-	 * read the parameters in the configuration file[m
+[31m-	 */[m
+[31m-	private void loadPropertiesFromFile() {[m
+[31m-		Properties properties = new Properties();[m
+[31m-		try {[m
+[31m-			InputStream inputStream = new BufferedInputStream([m
+[31m-					new FileInputStream(getConfigurationPath()));[m
+[31m-			properties.load(inputStream);[m
+[31m-[m
+[31m-		} catch (IOException e) {[m
+[31m-			System.out.print("failed to load configuration file.");[m
+[31m-			return;[m
+[31m-		}[m
+[31m-[m
+[31m-		this.setGameServerPort(Integer.parseInt(properties.getProperty("port")));[m
+[31m-		[m
+[31m-		System.out.println("All parameters loaded ");[m
+[31m-		System.out.println(this.toString());[m
+[31m-		[m
+[31m-		// this.setCassandraClusterIp(properties.getProperty("cassandraIp"));[m
+[31m-	}[m
+[31m-[m
+[31m-	/**[m
+[31m-	 * it tells where is the configuration file located when something goes[m
+[31m-	 * wrong ,check the path first[m
+[31m-	 * [m
+[31m-	 * @return[m
+[31m-	 */[m
+[31m-	private String getConfigurationPath() {[m
+[31m-		String fileNameAndFolder = "conf"+File.separator+"serverconfig.properties";[m
+[31m-		String path = this.getClass().getProtectionDomain().getCodeSource()[m
+[31m-				.getLocation().getPath();[m
+[31m-		File file = new File(path);[m
+[31m-		//System.out.println(file.getPath());[m
+[31m-		//System.out.println(file.getParent());	[m
+[31m-		path = file.getParent()+File.separator+fileNameAndFolder;[m
+[31m-		return path;[m
+[31m-	}[m
+[31m-[m
+[31m-	public int getGameServerPort() {[m
+[31m-		return gameServerPort;[m
+[31m-	}[m
+[31m-[m
+[31m-	public void setGameServerPort(int gameServerPort) {[m
+[31m-		this.gameServerPort = gameServerPort;[m
+[31m-	}[m
+[31m-[m
+[31m-	public String getGameServerIp() {[m
+[31m-		return gameServerIp;[m
+[31m-	}[m
+[31m-[m
+[31m-	public void setGameServerIp(String gameServerIp) {[m
+[31m-		this.gameServerIp = gameServerIp;[m
+[31m-	}[m
+[31m-[m
+[31m-	public String getClusterName() {[m
+[31m-		return clusterName;[m
+[31m-	}[m
+[31m-[m
+[31m-	public void setClusterName(String clusterName) {[m
+[31m-		this.clusterName = clusterName;[m
+[31m-	}[m
+[31m-[m
+[31m-	public String getKeySpaceName() {[m
+[31m-		return keySpaceName;[m
+[31m-	}[m
+[31m-[m
+[31m-	public void setKeySpaceName(String keySpaceName) {[m
+[31m-		this.keySpaceName = keySpaceName;[m
+[31m-	}[m
+[31m-[m
+[31m-	public String getCassandraClusterIp() {[m
+[31m-		return cassandraClusterIp;[m
+[31m-	}[m
+[31m-[m
+[31m-	public void setCassandraClusterIp(String cassandraClusterIp) {[m
+[31m-		this.cassandraClusterIp = cassandraClusterIp;[m
+[31m-	}[m
+[31m-[m
+[31m-	public String toString(){[m
+[31m-		StringBuilder sb=new StringBuilder("==============Parameters in the configuration file==============\n");[m
+[31m-		sb.append("Serverport====>").append(this.getGameServerPort());[m
+[31m-		[m
+[31m-		sb.append("\n").append("================================================================");[m
+[31m-	return sb.toString();[m
+[31m-	}[m
+[31m-	/**[m
+[31m-	 * @param args[m
+[31m-	 */[m
+[31m-	public static void main(String[] args) {[m
+[31m-[m
+[31m-		ConfigurationReader cReader = ConfigurationReader.getInstance();[m
+[31m-		System.out.println(cReader.toString());[m
+[31m-	}[m
+[31m-[m
+[31m-}[m
+[1mdiff --git a/GamePrototypeServer/src/massage/GameServer.java b/GamePrototypeServer/src/massage/GameServer.java[m
+[1mindex db7aa2e..ac3609c 100644[m
+[1m--- a/GamePrototypeServer/src/massage/GameServer.java[m
+[1m+++ b/GamePrototypeServer/src/massage/GameServer.java[m
+[36m@@ -1,6 +1,5 @@[m
+ package massage;[m
+ [m
+[31m-import de.ovgu.tools.ConfigurationReader;[m
+ import io.netty.bootstrap.ServerBootstrap;[m
+ import io.netty.channel.EventLoopGroup;[m
+ import io.netty.channel.nio.NioEventLoopGroup;[m
+[36m@@ -11,40 +10,35 @@[m [mimport io.netty.channel.socket.nio.NioServerSocketChannel;[m
+  */[m
+ public class GameServer {[m
+ [m
+[31m-	private final int port;[m
+[31m-[m
+[31m-	public GameServer(int port) {[m
+[31m-		this.port = port;[m
+[31m-	}[m
+[31m-[m
+[31m-	public void run() throws Exception {[m
+[31m-		EventLoopGroup bossGroup = new NioEventLoopGroup();[m
+[31m-		EventLoopGroup workerGroup = new NioEventLoopGroup();[m
+[31m-		try {[m
+[31m-			ServerBootstrap b = new ServerBootstrap();[m
+[31m-			b.group(bossGroup, workerGroup)[m
+[31m-					.channel(NioServerSocketChannel.class)[m
+[31m-					.childHandler(new GameServerInitializer());[m
+[31m-[m
+[31m-			b.bind(port).sync().channel().closeFuture().sync();[m
+[31m-		} finally {[m
+[31m-			bossGroup.shutdownGracefully();[m
+[31m-			workerGroup.shutdownGracefully();[m
+[31m-		}[m
+[31m-	}[m
+[31m-[m
+[31m-	public static void main(String[] args) throws Exception {[m
+[31m-[m
+[31m-		int port;[m
+[31m-		// if (args.length > 0) {[m
+[31m-		// port = Integer.parseInt(args[0]);[m
+[31m-		// } else {[m
+[31m-		// port = 8080;[m
+[31m-		// }[m
+[31m-[m
+[31m-		ConfigurationReader creader = ConfigurationReader.getInstance();[m
+[31m-		port = creader.getGameServerPort();[m
+[31m-[m
+[31m-		new GameServer(port).run();[m
+[31m-	}[m
+[32m+[m[32m    private final int port;[m
+[32m+[m
+[32m+[m[32m    public GameServer(int port) {[m
+[32m+[m[32m        this.port = port;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    public void run() throws Exception {[m
+[32m+[m[32m        EventLoopGroup bossGroup = new NioEventLoopGroup();[m
+[32m+[m[32m        EventLoopGroup workerGroup = new NioEventLoopGroup();[m
+[32m+[m[32m        try {[m
+[32m+[m[32m            ServerBootstrap b = new ServerBootstrap();[m
+[32m+[m[32m            b.group(bossGroup, workerGroup)[m
+[32m+[m[32m             .channel(NioServerSocketChannel.class)[m
+[32m+[m[32m             .childHandler(new GameServerInitializer());[m
+[32m+[m
+[32m+[m[32m            b.bind(port).sync().channel().closeFuture().sync();[m
+[32m+[m[32m        } finally {[m
+[32m+[m[32m            bossGroup.shutdownGracefully();[m
+[32m+[m[32m            workerGroup.shutdownGracefully();[m
+[32m+[m[32m        }[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    public static void main(String[] args) throws Exception {[m
+[32m+[m[32m        int port;[m
+[32m+[m[32m        if (args.length > 0) {[m
+[32m+[m[32m            port = Integer.parseInt(args[0]);[m
+[32m+[m[32m        } else {[m
+[32m+[m[32m            port = 8080;[m
+[32m+[m[32m        }[m
+[32m+[m[32m        new GameServer(port).run();[m
+[32m+[m[32m    }[m
+ }[m
+[1mdiff --git a/GamePrototypeServer/src/massage/RequestSorter.java b/GamePrototypeServer/src/massage/RequestSorter.java[m
+[1mindex 74581af..6df5f91 100644[m
+[1m--- a/GamePrototypeServer/src/massage/RequestSorter.java[m
+[1m+++ b/GamePrototypeServer/src/massage/RequestSorter.java[m
+[36m@@ -28,7 +28,6 @@[m [mpublic class RequestSorter {[m
+ 						case "get":[m
+ 						case "sell":[m
+ 						case "quit":[m
+[31m-							//even you create many instance of ValidRequestHandler, but they all share the static client id[m
+ 							ValidRequestHandler vReq = new ValidRequestHandler();[m
+ 							vReq.setClientId(clientId);[m
+ 							vReq.run(req.toLowerCase());[m
